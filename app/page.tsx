@@ -1,103 +1,167 @@
+"use client";
+
+import { Plane, RefreshCw } from "lucide-react";
+import { useMemo, useState } from "react";
+
+import { useFlights } from "@/hooks/use-flights";
 import Image from "next/image";
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+import { FlightCard } from "@/components/flight-card";
+import { FlightsTable } from "@/components/flights-table";
+import { LoadingSkeleton } from "@/components/loading-skeleton";
+import { Pagination } from "@/components/pagination";
+import { StatusFilter } from "@/components/status-filter";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+import type { FlightStatus } from "@/types/flight";
+
+export default function FlightDashboard() {
+  const [statusFilter, setStatusFilter] = useState<FlightStatus>("all");
+  const [refreshDisabled, setRefreshDisabled] = useState<boolean>(false);
+  const {
+    flights,
+    loading,
+    error,
+    total,
+    currentPage,
+    totalPages,
+    nextPage,
+    prevPage,
+    canGoNext,
+    canGoPrev,
+    fetchFlights,
+  } = useFlights({ limit: 10 });
+
+  const filteredFlights = useMemo(() => {
+    if (statusFilter === "all") return flights;
+
+    return flights.filter((flight) => flight.status === statusFilter);
+  }, [flights, statusFilter]);
+
+  const handleRefresh = () => {
+    if (refreshDisabled) return;
+
+    const currentOffset = (currentPage - 1) * 10;
+
+    fetchFlights(currentOffset);
+    setRefreshDisabled(true);
+
+    setTimeout(() => {
+      setRefreshDisabled(false);
+    }, 300000);
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div className="p-2 ">
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+              src="/logo.png"
+              alt="IAG Group Logo"
+              width={100}
+              height={50}
+              className="w-full h-full object-contain text-primary"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Plane className="w-5 h-5 text-primary" />
+            </div>
+
+            <div>
+              <h1 className="text-2xl font-bold">Flight Status Dashboard</h1>
+              <p className="text-muted-foreground">
+                Real-time flight information and status updates
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            onClick={handleRefresh}
+            disabled={loading}
+            className="flex items-center gap-2"
           >
-            Read our docs
-          </a>
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            {refreshDisabled ? "Please wait 5 minutes..." : "Refresh"}
+          </Button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Filters and Status */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <StatusFilter value={statusFilter} onValueChange={setStatusFilter} />
+          <div className="text-sm text-muted-foreground">
+            {loading ? (
+              "Loading flights..."
+            ) : error ? (
+              "Unable to load flight data"
+            ) : (
+              <>
+                Showing {filteredFlights.length} of {total} flights
+                {statusFilter !== "all" && ` (filtered by ${statusFilter})`}
+              </>
+            )}
+          </div>
+        </div>
+
+        {error && (
+          <Alert className="mb-6" variant="destructive">
+            <AlertDescription>
+              {error}. Please try refreshing the page or contact support if the
+              problem persists.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {loading && <LoadingSkeleton />}
+
+        {/* Content */}
+        {!loading && !error && (
+          <>
+            {filteredFlights.length === 0 ? (
+              <div className="text-center py-12">
+                <Plane className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No flights found</h3>
+                <p className="text-muted-foreground">
+                  {statusFilter !== "all"
+                    ? `No flights with status "${statusFilter}" found.`
+                    : "No flights are currently available."}
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Desktop Table View */}
+                <div className="hidden md:block mb-6">
+                  <FlightsTable flights={filteredFlights} />
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-4 mb-6">
+                  {filteredFlights.map((flight) => (
+                    <FlightCard key={flight.id} flight={flight} />
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPrevious={prevPage}
+                    onNext={nextPage}
+                    canGoPrev={canGoPrev}
+                    canGoNext={canGoNext}
+                    loading={loading}
+                  />
+                )}
+              </>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
