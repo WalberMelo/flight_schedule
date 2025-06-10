@@ -82,7 +82,7 @@ export default function FlightDashboard() {
           <Button
             variant="outline"
             onClick={handleRefresh}
-            disabled={loading}
+            disabled={loading || refreshDisabled}
             className="flex items-center gap-2"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />

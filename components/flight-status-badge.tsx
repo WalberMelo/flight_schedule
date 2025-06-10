@@ -1,8 +1,9 @@
-import { Badge } from "@/components/ui/badge"
-import type { FlightStatusType } from "@/types/flight"
+import { Badge } from "@/components/ui/badge";
+
+import type { FlightStatusType } from "@/types/flight";
 
 interface FlightStatusBadgeProps {
-  status: FlightStatusType
+  status: FlightStatusType;
 }
 
 const statusConfig = {
@@ -36,14 +37,18 @@ const statusConfig = {
     color: "bg-yellow-100 text-yellow-800 hover:bg-yellow-100",
     label: "Diverted",
   },
-}
+};
 
 export function FlightStatusBadge({ status }: FlightStatusBadgeProps) {
-  const config = statusConfig[status] || statusConfig.scheduled
+  const config = statusConfig[status] || statusConfig.scheduled;
 
   return (
-    <Badge variant={config.variant} className={config.color}>
+    <Badge
+      variant={config.variant}
+      className={config.color}
+      data-testid="badge-status"
+    >
       {config.label}
     </Badge>
-  )
+  );
 }
