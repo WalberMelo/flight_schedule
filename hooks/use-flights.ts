@@ -47,7 +47,7 @@ export function useFlights({
         const transformedFlights = apiFlights.map(transformApiFlightToFlight);
 
         setFlights(transformedFlights);
-        setTotal(pagination.total);
+        setTotal(pagination[0]?.total ?? 0);
         setCurrentOffset(offset);
       } catch (err) {
         setError(
@@ -58,7 +58,7 @@ export function useFlights({
         setLoading(false);
       }
     },
-    [limit]
+    [limit, API_BASE]
   );
 
   useEffect(() => {
