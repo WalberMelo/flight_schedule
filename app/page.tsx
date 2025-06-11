@@ -9,6 +9,7 @@ import Image from "next/image";
 import { FlightCard } from "@/components/flight-card";
 import { FlightsTable } from "@/components/flights-table";
 import { LoadingSkeleton } from "@/components/loading-skeleton";
+import { LogDialog } from "@/components/logDialog";
 import { Pagination } from "@/components/pagination";
 import { StatusFilter } from "@/components/status-filter";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -79,6 +80,7 @@ export default function FlightDashboard() {
               </p>
             </div>
           </div>
+          <LogDialog />
           <Button
             variant="outline"
             onClick={handleRefresh}
